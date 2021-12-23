@@ -1,0 +1,4 @@
+---
+kubectl_url: '{{kubectl_mirror}}/{{kubectl_version}}/bin/{{kubectl_platform}}/{{kubectl_arch}}/kubectl'
+kubectl_checksum: '{{kubectl_checksums[kubectl_version][kubectl_platform][kubectl_arch]}}'
+kubectl_install_target: '{{kubectl_install_dir}}/kubectl-{{kubectl_version}}'

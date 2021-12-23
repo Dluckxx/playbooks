@@ -1,0 +1,41 @@
+---
+- name: Get helm version
+  become: yes
+  shell: helm version --short
+  register: helm_version_check
+  ignore_errors: true
+  tags:
+    - env
+    - deploy
+
+- name: Check helm update required
+  set_fact:
+    helm_update: "{{(helm_version_check.rc != 0) or (helm_version_check.stdout.find('v3.') == 0)}}"
+  tags:
+    - env
+    - deploy
+
+- name: Install helm
+  become: yes
+  shell: snap install helm --classic
+  when: helm_update
+  tags:
+    - env
+    - deploy
+
+- name: Install repos
+  become: yes
+  become_user: "{{user}}"
+  shell: "helm repo add {{item.name}} {{item.url}}"
+  with_items: "{{helm_repos}}"
+  tags:
+    - env
+    - deploy
+
+- name: Update repo
+  become: yes
+  become_user: "{{user}}"
+  shell: helm repo update
+  tags:
+    - env
+    - deploy

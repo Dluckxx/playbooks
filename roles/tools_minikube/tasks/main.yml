@@ -1,0 +1,75 @@
+---
+- name: Get minikube version
+  become: yes
+  shell: minikube version --short
+  register: minikube_version_check
+  ignore_errors: true
+  tags:
+    - env
+    - deploy
+
+- name: set var minikube status
+  set_fact:
+    minikube_update: "{{(minikube_version_check.rc != 0) or (minikube_version_check.stdout.find(minikube_version) == -1)}}"
+  tags:
+    - env
+    - deploy
+
+- name: Apt install conntrack
+  become: yes
+  apt:
+    name: conntrack
+    update_cache: yes
+  tags:
+    - env
+    - deploy
+  when: minikube_update
+
+- name: Delete minikube
+  become: yes
+  shell: minikube delete
+  become_user: '{{ user }}'
+  ignore_errors: true
+  tags:
+    - env
+    - deploy
+  when: minikube_update
+
+- name: Download minikube
+  become: yes
+  become_user: root
+  get_url:
+    url: '{{minikube_url}}'
+    dest: '{{minikube_install_target}}'
+    checksum: '{{minikube_checksum}}'
+    mode: 0755
+  tags:
+    - env
+    - deploy
+  when: minikube_update
+
+- name: link minikube
+  become: yes
+  file:
+    src: '{{minikube_install_target}}'
+    dest: '{{minikube_install_dir}}/minikube'
+    state: link
+  tags:
+    - env
+    - deploy
+  when: minikube_update
+
+- name: mkdir kube
+  file:
+    path: '{{ansible_env.HOME}}/.kube'
+    state: directory
+    mode: 0755
+  tags:
+    - env
+
+- name: touch config
+  file:
+    path: '{{ansible_env.HOME}}/.kube/config'
+    state: touch
+  tags:
+    - env

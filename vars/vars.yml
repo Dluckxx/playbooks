@@ -1,0 +1,13 @@
+ansible_python_interpreter: /usr/local/bin/python3.9
+user: root
+homepath: "/root"
+
+k8s_version: v1.22.0
+k8s:
+  ingress: false
+  context: minikube
+  resources:
+    requests:
+      backendclient:
+        cpu: 10m
+        mem: 10Mi

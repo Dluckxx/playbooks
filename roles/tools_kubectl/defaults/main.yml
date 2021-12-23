@@ -1,0 +1,32 @@
+---
+kubectl_version: v1.22.0
+kubectl_platform: linux
+kubectl_arch: amd64
+kubectl_checksums:
+  v1.13.3:
+    linux:
+      amd64: sha256:f3be209a48394e0e649b30ea376ce5093205fd6769c12e62c7ab39a0827c26fb
+      arm64: 221eef5d842a9929c924e59bda7a3a137976b6655a4c14780619396131aaa309
+  v1.13.4:
+    linux:
+      amd64: sha256:92de2edbc8c21cfce6f70daa48e95560274a7413a51a6f8c348d974490fd1338
+      arm64: sha256:859cb1e7687c916f7f50fb3e5de84d0f0884c3cff857d764583cd2be4f676ded
+  v1.14.2:
+    linux:
+      amd64: sha256:9daf696f5609ab41ac491886de5e87e35d8d3076f65defc27602a476800a97bf
+      arm64: sha256:1423afb8b660b2cc621cc7ce6ea86d368ece3ad44c49d55be7ad709ea0d8d552
+  v1.16.0:
+    linux:
+      amd64: sha256:4fc8a7024ef17b907820890f11ba7e59a6a578fa91ea593ce8e58b3260f7fb88
+      arm64: sha256:bdec615287163fa53b315f9d0481da3900df4063b0a41c3a412077fe765ee6c2
+  v1.19.0:
+    linux:
+      amd64: sha256:79bb0d2f05487ff533999a639c075043c70a0a1ba25c1629eb1eef6ebe3ba70f
+      arm64: sha256:d4adf1b6b97252025cb2f7febf55daa3f42dc305822e3da133f77fd33071ec2f
+  v1.22.0:
+    linux:
+      amd64: sha256:703e70d49b82271535bc66bc7bd469a58c11d47f188889bd37101c9772f14fa1
+      arm64: sha256:8d9cc92dcc942f5ea2b2fc93c4934875d9e0e8ddecbde24c7d4c4e092cfc7afc
+kubectl_mirror: https://storage.googleapis.com/kubernetes-release/release
+kubectl_install_dir: /usr/local/bin
+kubectl_on_tencent: false

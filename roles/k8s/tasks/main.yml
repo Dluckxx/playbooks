@@ -1,0 +1,142 @@
+---
+- name: Get cluster version
+  become: yes
+  become_user: '{{ user }}'
+  shell: minikube profile list -ojson
+  register: k8s_cluster_version_check
+  ignore_errors: yes
+  failed_when: k8s_cluster_version_check.rc not in [0, 80]
+  tags:
+    - deploy
+
+- name: Delete minikube
+  become: yes
+  become_user: '{{ user }}'
+  shell: sudo minikube delete
+  tags:
+    - deploy
+  when: 
+    - k8s_cluster_version_check.rc == 0
+    - (k8s_cluster_version_check.stdout | from_json).valid | length > 0
+    - (k8s_cluster_version_check.stdout | from_json).valid[0].Config.KubernetesConfig.KubernetesVersion.find(k8s_version) == -1
+
+- name: Get minikube status
+  become: yes
+  become_user: '{{ user }}'
+  shell: minikube status
+  register: minikube_status
+  failed_when: minikube_status.rc not in [0, 1, 2, 6, 7, 85]
+  changed_when: false
+  tags:
+    - clean
+    - deploy
+
+- name: set var minikube status
+  set_fact:
+    minikube_is_running: "{{'Running' in minikube_status.stdout}}"
+  tags:
+    - clean
+    - deploy
+
+- debug:
+    var: minikube_is_running
+  tags:
+    - clean
+    - deploy
+
+- name: Stop minikube
+  become: yes
+  become_user: '{{ user }}'
+  shell: sudo minikube stop
+  ignore_errors: yes
+  tags:
+    - clean
+    - deploy
+  when: minikube_is_running
+
+- name: Delete minikube
+  become: yes
+  become_user: '{{ user }}'
+  shell: |
+    sudo minikube delete
+  register: minikube_deletes
+  ignore_errors: yes
+  failed_when: minikube_deletes.rc not in [0, 70]
+  tags:
+    - clean
+
+- name: Gethering clean files
+  become: yes
+  find:
+    paths: '{{ ansible_env.HOME }}/.minikube'
+    patterns: "*"
+  register: minikube_files
+  changed_when: false
+  tags:
+    - clean
+
+- name: Clean minikube files
+  become: yes
+  file:
+    path: '{{ item.path }}'
+    state: absent
+  with_items: "{{ minikube_files.files }}"
+  tags:
+    - clean
+
+- name: Starting minikube
+  become: yes
+  become_user: '{{ user }}'
+  shell: >
+    sudo minikube start
+    --driver=none
+    --extra-config=apiserver.authorization-mode=Node,RBAC
+    --kubernetes-version={{ k8s_version }}
+  tags:
+    - deploy
+
+- name: chown config
+  become: yes
+  file:
+    path: '{{ item }}'
+    owner: '{{ user }}'
+    recurse: yes
+  with_items:
+    - '{{ ansible_env.HOME }}/.minikube'
+    - '{{ ansible_env.HOME }}/.kube'
+  tags:
+    - deploy
+
+- name: this for loop waits until kubectl can access the api server that Minikube has created
+  become: yes
+  become_user: '{{ user }}'
+  shell: |
+    for i in {1..150}; do
+      kubectl --context="{{ k8s.context }}" get po &> /dev/null
+      if [ $? -ne 1 ]; then
+        break
+      fi
+      sleep 2
+    done
+  changed_when: false
+  tags:
+    - deploy
+
+- name: minikube addon metrics-server
+  become: yes
+  become_user: '{{ user }}'
+  shell: |
+    sudo minikube addons enable metrics-server
+  register: addon_result
+  tags:
+    - deploy
+
+- name: Install kubeboard v3
+  become: yes
+  become_user: ' {{ user }} '
+  shell: >
+    kubectl
+    --context="{{ k8s.context }}"
+    apply -f https://addons.kuboard.cn/kuboard/kuboard-v3.yaml
+  tags:
+    - deploy

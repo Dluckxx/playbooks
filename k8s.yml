@@ -1,0 +1,6 @@
+---
+- hosts: hosts
+  vars_files:
+    - vars/vars.yml
+  roles:
+    - { role: k8s }

@@ -1,0 +1,60 @@
+---
+- name: Get kubectl version
+  shell: kubectl version --client
+  register: kubectl_version_check
+  ignore_errors: true
+  tags:
+    - env
+    - deploy
+
+- name: set var kubectl status
+  set_fact:
+    kubectl_update: "{{(kubectl_version_check.rc != 0) or (kubectl_version_check.stdout.find(kubectl_version) == -1)}}"
+  tags:
+    - env
+    - deploy
+
+- name: download kubectl
+  become: yes
+  become_user: root
+  get_url:
+    url: '{{kubectl_url}}'
+    dest: '{{kubectl_install_target}}'
+    checksum: '{{kubectl_checksum}}'
+    mode: 0755
+  tags:
+    - env
+    - deploy
+  when: kubectl_update
+
+- name: link kubectl
+  become: yes
+  become_user: root
+  file:
+    src: '{{kubectl_install_target}}'
+    dest: '{{kubectl_install_dir}}/kubectl'
+    state: link
+  tags:
+    - env
+    - deploy
+  when: kubectl_update
+
+- name: Reset .kube dir
+  become: yes
+  become_user: "{{user}}"
+  file:
+    path: "{{homepath}}/.kube"
+    state: absent
+  tags:
+    - env
+
+- name: create .kube dir
+  become: yes
+  become_user: "{{user}}"
+  file:
+    state: directory
+    path: "{{homepath}}/.kube"
+    owner: "{{user}}"
+    mode: 0755
+  tags:
+    - env

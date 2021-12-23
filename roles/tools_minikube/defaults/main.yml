@@ -1,0 +1,23 @@
+---
+minikube_version: v1.22.0
+minikube_platform: linux-amd64
+minikube_checksums:
+  v0.34.1:
+    linux-amd64: sha256:8db7e8a128de48ebeb1cb8cacb457f60b5420706e08c190e466f4e9b971fd8f3
+  v0.35.0:
+    linux-amd64: sha256:e161995604c42c37a797fd11fac5d545f8b75f0796afc3b10679253bf229ff3d
+  v1.0.0:
+    linux-amd64: sha256:a315869f81aae782ecc6ff2a6de4d0ab3a17ca1840d1d8e6eea050a8dd05907f
+  v1.0.1:
+    linux-amd64: sha256:7b56374955990ef2dd0289e6ecb62cf2b4587cab2b481d95f58de5db56799868
+  v1.1.0:
+    linux-amd64: sha256:43ce88a10c7b57f5e4f83e5a1485e13e4ad537bfb20f7d57364f66450b872634
+  v1.13.1:
+    linux-amd64: sha256:3564b685f8d797df78ebfa2f5b34c99b3c77b0d1f49eab6aab37500f1ba61d98
+  v1.14.2:
+    linux-amd64: sha256:f38f8da05a940589989eb0e85492edfe146caf57f9cfbb4ebb06de877f828f2e
+  v1.22.0:
+    linux-amd64: sha256:7579e5763a4e441500e5709eb058384c9cfe9c9dd888b39905b2cdf3d30fbf36
+    
+minikube_mirror: https://github.com/kubernetes/minikube/releases/download
+minikube_install_dir: /usr/local/bin

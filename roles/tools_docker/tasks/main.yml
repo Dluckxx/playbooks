@@ -1,0 +1,99 @@
+---
+- name: Check docker installed
+  become: yes
+  shell:
+    cmd: command -v docker
+  register: docker_exists
+  ignore_errors: yes
+  tags:
+    - env
+
+- name: Install docker
+  become: yes
+  shell:
+    cmd: yum install -y docker-ce
+    warn: no
+  when: 
+    - docker_exists.rc != 0
+  tags:
+    - env
+
+- name: pip install docker sdk
+  become: yes
+  shell:
+    cmd: "{{item}} install -i https://pypi.tuna.tsinghua.edu.cn/simple/ docker==3.7.2"
+  with_items:
+    - python3 -m pip
+  tags:
+    - env
+    
+
+- name : check docker dir exists
+  become: yes
+  stat:
+    path: /etc/docker
+  register: dockerDir
+  tags:
+    - env
+
+- name: make docker dir
+  become: yes
+  file:
+    path: /etc/docker
+    state: directory
+  when:
+    - not dockerDir.stat.exists
+  tags:
+    - env
+
+- name: copy docker mirror config json file
+  become: yes
+  copy:
+    src: "{{item}}"
+    dest: "/etc/docker"
+  with_items:
+    - daemon.json
+  tags:
+    - env
+
+- name: reload daemon
+  become: yes
+  shell: systemctl daemon-reload && systemctl restart docker
+  tags:
+    - env
+
+- name: Start docker service
+  become: yes
+  service:
+    name: docker
+    state: started
+    enabled: yes
+    use: service
+  tags:
+    - deploy
+
+- name: Check docker-compose installed
+  become: yes
+  shell:
+    cmd: command -v docker-compose
+  register: compose_exists
+  ignore_errors: yes
+  tags:
+    - env
+
+- name: DL docker-compose
+  become: yes
+  shell:
+    cmd: curl -L "https://hub.fastgit.org/docker/compose/releases/download/1.25.0/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+  when: 
+    - compose_exists.rc != 0
+  tags:
+    - env
+
+- name: Chmod docker-compose
+  become: yes
+  file:
+    path: /usr/local/bin/docker-compose
+    mode: +x
+  tags:
+    - env
