@@ -1,0 +1,4 @@
+---
+dependencies:
+  - { role: tools_docker }
+  - { role: tools_kubectl }

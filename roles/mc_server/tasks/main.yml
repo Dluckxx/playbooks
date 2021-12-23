@@ -1,0 +1,16 @@
+- name: Delete mc-server namespace
+  shell: >
+    kubectl --context="{{ k8s.context }}"
+    delete ns mc-server
+  ignore_errors: true
+  tags:
+    - deploy
+
+- import_tasks: build.yml
+  tags:
+    - build
+    - deploy
+
+- import_tasks: deploy.yml
+  tags:
+    - deploy

@@ -1,0 +1,45 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mc-server
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mc-server
+  template:
+    metadata:
+      labels:
+        app: mc-server
+    spec:
+      containers:
+      - name: mc-server
+        image: itzg/minecraft-server:latest
+        imagePullPolicy: IfNotPresent
+        workingDir: /data
+        ports:
+        - containerPort: 25565
+          protocol: TCP
+        volumeMounts:
+        - name: data
+          mountPath: /data
+        env:
+        - name: VERSION
+          value: "{{ mc_server.version }}"
+        - name: EULA
+          value: "TRUE"
+        - name: TZ
+          value: Asia/Shanghai
+        - name: MAX_PLAYERS
+          value: "50"
+        - name: PVP
+          value: "{{ mc_server.pvp|default(false) }}"
+        - name: SEED
+          value: "{{ mc_server.seed|default() }}"
+      restartPolicy: Always
+      volumes:
+      - name: data
+        hostPath:
+          path: {{ mc_server.data_path }}
+          type: Directory

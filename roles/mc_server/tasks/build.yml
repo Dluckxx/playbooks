@@ -1,0 +1,26 @@
+- name: Reset build dir
+  become: yes
+  file:
+    path: "{{ build_path }}"
+    state: absent
+
+- name: Create build dirs
+  become: yes
+  file:
+    path: "{{ item }}"
+    state: directory
+    owner: "{{ user }}"
+    mode: 0755
+  with_items:
+  - "{{ build_path }}/mc_server"
+
+- name: Copy k8s files
+  become: yes
+  template: 
+    src: "{{ item }}"
+    dest: "{{ build_path }}/mc_server/{{ item }}"
+  with_items:
+  - service.yml
+  - deploy.yml
+  - namespace.yml
+  - kustomization.yml

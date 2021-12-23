@@ -1,13 +1,15 @@
 ansible_python_interpreter: /usr/local/bin/python3.9
 user: root
 homepath: "/root"
+build_path: "{{ homepath }}/build"
 
-k8s_version: v1.22.0
 k8s:
+  version: v1.22.0
   ingress: false
   context: minikube
-  resources:
-    requests:
-      backendclient:
-        cpu: 10m
-        mem: 10Mi
+
+mc_server:
+  version: 1.14.4
+  port: 30565 # 30000-32767
+  data_path: "{{ homepath }}/mc"
+  pvp: true

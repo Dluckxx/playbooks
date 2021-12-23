@@ -18,7 +18,7 @@
   when: 
     - k8s_cluster_version_check.rc == 0
     - (k8s_cluster_version_check.stdout | from_json).valid | length > 0
-    - (k8s_cluster_version_check.stdout | from_json).valid[0].Config.KubernetesConfig.KubernetesVersion.find(k8s_version) == -1
+    - (k8s_cluster_version_check.stdout | from_json).valid[0].Config.KubernetesConfig.KubernetesVersion.find(k8s.version) == -1
 
 - name: Get minikube status
   become: yes
@@ -91,7 +91,7 @@
     sudo minikube start
     --driver=none
     --extra-config=apiserver.authorization-mode=Node,RBAC
-    --kubernetes-version={{ k8s_version }}
+    --kubernetes-version={{ k8s.version }}
   tags:
     - deploy
 

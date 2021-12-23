@@ -1,0 +1,25 @@
+---
+- name: Deploy mc-server
+  shell: >
+    kubectl 
+    --context="{{ k8s.context }}"
+    apply -k "{{ build_path }}/mc_server"
+
+- name: Get pod name
+  shell: >
+    kubectl 
+    --context="{{ k8s.context }}"
+    -n mc-server
+    get po -ojsonpath="{.items[0].metadata.name}"
+  register: mc_pod_name
+  until: mc_pod_name.rc == 0
+  retries: 3
+  delay: 5
+
+- name: Wait for pod to become ready
+  shell: >
+    kubectl 
+    --context="{{ k8s.context }}"
+    -n mc-server
+    wait --for=condition=ready pod {{ mc_pod_name.stdout }}
+    --timeout=180s
